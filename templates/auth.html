@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Megha Hospital - Secure Portal</title>
+    <link rel="icon" type="image/png" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/svgs/solid/square-plus.svg">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #00838f;
+            --secondary-color: #00bcd4;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #051923, #003545, #006466);
+            background-size: 300% 300%;
+            animation: gradientBG 12s ease infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Upstyled Animated Gradient Alternative Tiles Background */
+        .bg-tiles {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            z-index: 1;
+            opacity: 0.35;
+            pointer-events: none;
+            gap: 2px;
+        }
+
+        .tile {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Alternating dynamic gradient illumination for tiles */
+        .tile:nth-child(odd) {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1), rgba(0, 131, 143, 0.05));
+        }
+
+        .tile:nth-child(even) {
+            background: linear-gradient(225deg, rgba(10, 147, 150, 0.1), rgba(5, 25, 35, 0.15));
+        }
+
+        .tile:hover {
+            background: rgba(0, 188, 212, 0.4);
+            border-color: rgba(0, 188, 212, 0.8);
+            box-shadow: 0 0 20px var(--secondary-color);
+            transform: scale(1.03);
+            z-index: 2;
+        }
+
+        /* Glassmorphism Container */
+        .auth-container {
+            position: relative;
+            z-index: 10;
+            width: 900px;
+            height: 560px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Form Panels */
+        .form-panel {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            padding: 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: var(--text-color);
+            transition: all 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .login-panel {
+            left: 0;
+            z-index: 2;
+        }
+
+        .register-panel {
+            left: 50%;
+            opacity: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Active Transitions */
+        .auth-container.right-panel-active .login-panel {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .auth-container.right-panel-active .register-panel {
+            transform: translateX(-100%);
+            opacity: 1;
+            z-index: 5;
+            pointer-events: auto;
+        }
+
+        /* Sliding Overlay Container */
+        .overlay-container {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 50%;
+            height: 100%;
+            overflow: hidden;
+            transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 100;
+        }
+
+        .auth-container.right-panel-active .overlay-container {
+            transform: translateX(-100%);
+        }
+
+        .overlay {
+            background: linear-gradient(135deg, rgba(0, 131, 143, 0.75), rgba(0, 60, 75, 0.85));
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #FFFFFF;
+            position: relative;
+            left: -100%;
+            height: 100%;
+            width: 200%;
+            transform: translateX(0);
+            transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+            display: flex;
+        }
+
+        .auth-container.right-panel-active .overlay {
+            transform: translateX(50%);
+        }
+
+        .overlay-panel {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 0 40px;
+            text-align: center;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            transition: transform 0.6s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .overlay-left {
+            transform: translateX(-20%);
+        }
+
+        .auth-container.right-panel-active .overlay-left {
+            transform: translateX(0);
+        }
+
+        .overlay-right {
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .auth-container.right-panel-active .overlay-right {
+            transform: translateX(20%);
+        }
+
+        /* Glass Form Elements */
+        .form-control, .form-select {
+            background: rgba(255, 255, 255, 0.06) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #fff !important;
+            border-radius: 10px;
+            padding: 11px 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-color: var(--secondary-color) !important;
+            box-shadow: 0 0 15px rgba(0, 188, 212, 0.3) !important;
+        }
+
+        .form-select option {
+            background-color: #0b2545;
+            color: #fff;
+        }
+
+        .btn-glass {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 12px;
+            border: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 188, 212, 0.3);
+        }
+
+        .btn-glass:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 188, 212, 0.5);
+            color: #fff;
+        }
+
+        .btn-outline-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            color: #fff;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 10px 30px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+
+        .btn-outline-glass:hover {
+            background: #fff;
+            color: var(--primary-color);
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            margin: 0 6px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-icons a:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 12px var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Mobile Adjustments */
+        @media (max-width: 768px) {
+            .auth-container {
+                width: 90%;
+                height: 600px;
+                max-width: 400px;
+            }
+            .form-panel {
+                width: 100%;
+                padding: 30px;
+            }
+            .overlay-container {
+                display: none;
+            }
+            .register-panel {
+                left: 0;
+            }
+            .auth-container.right-panel-active .login-panel {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            .auth-container.right-panel-active .register-panel {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            .mobile-toggle {
+                display: block !important;
+            }
+        }
+        .mobile-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Upstyled Alternating Gradient Animated Tiles Background -->
+    <div class="bg-tiles" id="bgTiles"></div>
+
+    <div class="auth-container" id="authContainer">
+        
+        <!-- LOGIN PANEL -->
+        <div class="form-panel login-panel">
+            <div class="text-center mb-3">
+                <i class="fas fa-hospital-user fa-2x text-info mb-1"></i>
+                <h3 class="fw-bold">Welcome Back</h3>
+                <p class="text-white-50 small mb-3">Access your Megha Hospital account</p>
+            </div>
+            <form id="loginForm">
+                <div class="mb-3">
+                    <input type="email" class="form-control" placeholder="Email Address" required>
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" placeholder="Password" required>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mb-3 small">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label text-white-50" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="text-info text-decoration-none">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn btn-glass w-100 mb-3">Login</button>
+                
+                <div class="text-center text-white-50 small mb-2">Or connect with</div>
+                <div class="social-icons text-center mb-3">
+                    <a href="#"><i class="fab fa-google"></i></a>
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-apple"></i></a>
+                </div>
+
+                <div class="text-center small mobile-toggle">
+                    Don't have an account? <a href="#" id="showRegisterMobile" class="text-info fw-bold text-decoration-none">Register</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- REGISTER PANEL -->
+        <div class="form-panel register-panel">
+            <div class="text-center mb-2">
+                <i class="fas fa-user-plus fa-2x text-info mb-1"></i>
+                <h3 class="fw-bold">Create Account</h3>
+                <p class="text-white-50 small mb-3">Join Megha Hospital portal today</p>
+            </div>
+            <form id="registerForm">
+                <div class="mb-2">
+                    <input type="text" class="form-control" placeholder="Full Name" required>
+                </div>
+                <div class="mb-2">
+                    <input type="email" class="form-control" placeholder="Email Address" required>
+                </div>
+                <div class="mb-2">
+                    <input type="password" class="form-control" placeholder="Create Password" required>
+                </div>
+                <div class="mb-3">
+                    <select class="form-select">
+                        <option selected>Select Role</option>
+                        <option value="patient">Patient</option>
+                        <option value="doctor">Doctor / Specialist</option>
+                        <option value="staff">Hospital Staff</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-glass w-100 mb-3">Register</button>
+                
+                <div class="text-center small mobile-toggle">
+                    Already have an account? <a href="#" id="showLoginMobile" class="text-info fw-bold text-decoration-none">Login</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- SLIDING OVERLAY PANEL (DESKTOP) -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h2 class="fw-bold mb-3">Welcome Back!</h2>
+                    <p class="mb-4 text-light">To keep connected with us please login with your personal info</p>
+                    <button class="btn btn-outline-glass" id="signInBtn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h2 class="fw-bold mb-3">Hello, Patient!</h2>
+                    <p class="mb-4 text-light">Enter your personal details and start your healthcare journey with us</p>
+                    <button class="btn btn-outline-glass" id="signUpBtn">Sign Up</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Generate Upstyled Gradient Background Tiles Grid (12 x 8 = 96 tiles)
+        const bgTiles = document.getElementById('bgTiles');
+        const numberOfTiles = 96;
+        for (let i = 0; i < numberOfTiles; i++) {
+            const tile = document.createElement('div');
+            tile.classList.add('tile');
+            bgTiles.appendChild(tile);
+        }
+
+        // Switchable Form Logic
+        const authContainer = document.getElementById('authContainer');
+        const signUpBtn = document.getElementById('signUpBtn');
+        const signInBtn = document.getElementById('signInBtn');
+        const showRegisterMobile = document.getElementById('showRegisterMobile');
+        const showLoginMobile = document.getElementById('showLoginMobile');
+
+        signUpBtn.addEventListener('click', () => {
+            authContainer.classList.add('right-panel-active');
+        });
+
+        signInBtn.addEventListener('click', () => {
+            authContainer.classList.remove('right-panel-active');
+        });
+
+        if(showRegisterMobile) {
+            showRegisterMobile.addEventListener('click', (e) => {
+                e.preventDefault();
+                authContainer.classList.add('right-panel-active');
+            });
+        }
+
+        if(showLoginMobile) {
+            showLoginMobile.addEventListener('click', (e) => {
+                e.preventDefault();
+                authContainer.classList.remove('right-panel-active');
+            });
+        }
+
+        // Form submission handlers
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Login successful! Redirecting to dashboard...');
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Registration successful! Please verify your account.');
+            authContainer.classList.remove('right-panel-active');
+        });
+    </script>
+</body>
+</html>
